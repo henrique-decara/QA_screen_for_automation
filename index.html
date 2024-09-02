@@ -1,189 +1,93 @@
-<html><head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>CSG Challenge</title>
-  <style>
-    html,
-    body {
-      height: 100%;
-      background: #fafafa;
-      font-family: Arial, Helvetica, sans-serif;
-    }
-
-    #container {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #login-form {
-      padding: 10px;
-      border-radius: 10px;
-      background: #e9ecef;
-    }
-
-    .form .input {
-      margin: 5px;
-      display: flex;
-      justify-content: center;
-
-    }
-
-    .form input {
-      border: none;
-      border-radius: 5px;
-      padding: 5px;
-      outline: none;
-      line-height: 1.5;
-    }
-
-    #messages {
-      display: flex;
-      flex-direction: column;
-    }
-
-    #messages .message,
-    .validation {
-      padding: 5px;
-    }
-
-    #messages .message.success {
-      color: #28a745;
-    }
-
-    #messages .message.error,
-    .validation.error {
-      color: #dc3545;
-    }
-  </style>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+            display: none;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        input[type="button"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
-
 <body>
-  <div id="container">
-    <!-- //purge no_login_form -->
-    <div id="login-form">
-      <div class="form">
-        <div class="input">
-          <input type="email" id="email-input" placeholder="e-mail">
-        </div>
-
-        <div class="input">
-          <input type="password" id="password-input" placeholder="password">
-        </div>
-
-        <div class="input">
-          <div>
-            <button id="login-button">Login</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="messages">
-      </div>
+    <div class="login-container">
+        <div id="message" class="error-message"></div>
+        <form id="loginForm">
+            <input type="text" id="email" placeholder="Email" required><br>
+            <input type="password" id="password" placeholder="Password" required><br>
+            <input type="button" value="Login" onclick="validateLogin()">
+        </form>
     </div>
-    <!-- //endpurge no_login_form -->
-  </div>
 
-  <!-- //purge no_login_form -->
-  <script>
-    const validCredentials = {
-      email: 'login@csg.com',
-      password: 'password',
-    }
+    <script>
+        function validateLogin() {
+            // Clear previous messages
+            document.getElementById('message').style.display = 'none';
 
-    const container = document.getElementById('container');
-    const messages = document.getElementById('messages');
-    const loginButton = document.getElementById('login-button');
-    const emailInput = document.getElementById('email-input');
-    const passwordInput = document.getElementById('password-input');
+            // Get form values
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
 
-    const emailValidationRegexp = /^[\w\.]+@\w+\..{2,3}(.{2,3})?$/;
+            // Validation
+            let errorMessage = '';
+            if (!validateEmail(email)) {
+                errorMessage = 'Invalid email';
+            } else if (!password) {
+                errorMessage = 'Please, insert a password';
+            } else if (email === 'admin@user.com' && password === 'password') {
+                window.location.href = 'invoice-list.html'; // Redirect to invoice list page
+                return;
+            } else {
+                errorMessage = 'Invalid credentials';
+            }
 
-    const addMessage = (type, text) => {
-      const div = document.createElement('div');
-      div.classList.add(...type.split('.'));
-      div.textContent = text;
+            // Display error message
+            document.getElementById('message').innerText = errorMessage;
+            document.getElementById('message').style.display = 'block';
+        }
 
-      messages.appendChild(div);
-    };
-
-    const clearMessages = () => {
-      while (messages.hasChildNodes()) {
-        messages.removeChild(messages.lastChild);
-      }
-    }
-
-    const getCredentials = () => ({
-      email: emailInput.value,
-      password: passwordInput.value
-    });
-
-    const createSuccessPageElement = () => {
-      const successMessage = document.createElement('div');
-      successMessage.classList.add('message', 'success');
-      successMessage.textContent = 'Welcome to CSG';
-      return successMessage;
-    }
-
-    const redirectToSuccessPage = () => {
-      while (container.hasChildNodes()) {
-        container.removeChild(container.lastChild);
-      }
-
-      const successMessage = createSuccessPageElement();
-      container.appendChild(successMessage);      
-    }
-
-
-    const validateEmail = email => {
-      if (email === '') {
-        addMessage('validation.error', 'Email is required');
-        return false;
-      }
-
-      else if (!emailValidationRegexp.test(email)) {
-        addMessage('validation.error', 'Enter a valid email');
-        return false;
-      }
-
-      return true;
-    }
-
-    const validatePassword = password => {
-      if (password === '') {
-        addMessage('validation.error', 'Password is required');
-        return false;
-      }
-      return true;
-    }
-
-    const handleLogin = () => {
-      clearMessages();
-
-      const { email, password } = getCredentials();
-
-
-      const validationFailed = [
-        validateEmail(email),
-        validatePassword(password)
-      ].some(validationResult => validationResult === false);
-
-      if (validationFailed) {
-        return;
-      }
-
-      if (validCredentials.password === password && validCredentials.email === email) {
-        redirectToSuccessPage();
-      } else {
-        addMessage('message.error', 'Invalid credentials');
-      }
-    }
-
-    loginButton.addEventListener('click', handleLogin);
-  </script>
-
-
-</body></html>
+        function validateEmail(email) {
+            // Simple email validation regex
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+    </script>
+</body>
+</html>
